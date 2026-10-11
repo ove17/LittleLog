@@ -57,10 +57,10 @@ The meaning of logEventId's could be:
 ID	data1	data2	data3	meaning
 ------------------------------------------------
 0x00	version	VERSION	bootNo	boot
-0x01	any		any		any		misc/temp use
-0x02	max						accessory buffer high water mark
+0x01	any	any	any	misc/temp use
+0x02	max			accessory buffer high water mark
 ...
-0xFF							EMPTY
+0xFF				EMPTY
 ```
 
 Where only logEventId = 0 and 0xFF are predefined values, all others are user defined.
