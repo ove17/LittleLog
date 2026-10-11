@@ -26,35 +26,34 @@ A LittleLog record has the following format:
 - data2			uint8_t
 - data3			uint16_t
 
-## Intended use
+Where logEventId = 0 and 0xFF are predefined values, see **logEventId** below.
 
-The caller may have UI functions for accessing the log, e.g.:
-- access special logging menu via magic key in settings menu, for:
-	- displaying data
-	- provide clearBuffer
-	- writing log to SD
-	- show data from record X
-	- activating one log id
-	
-Where:
-- viewing/saving has nothing to do with LittleLog, it is all caller / app functionality
-	- so is writeToSd
-- The header of the loag may show logRecordId (count)
-- The UI can only read/show logs in the order that they are stored
+## Potential use
 
-## Possible UI display format
+The caller may provide a (hidden) logging menu, where the user could:
+- browse/display log data
+- clear the log buffer
+- export the log
 
+These are examples, none of this is implemented in LittleLog.
+
+### Possible UI display format
+
+```
 >tttttt cc dddeeffff
+```
 
 where:
-- t = timestamp in s, dus max. 999,999 ms ~ 16 min (en rolls over)
-- cc = log code (HEX)
+- t = timestamp in ms, dus max. 999,999 ms ~ 16 min (and then rolls over)
+- cc = logEventId (HEX)
 - ddd = data byte 1 (as dec)
 - ee = data byte 2 (as hex)
 - ffff = data word 3 (as hex)
 
-## Example
+## logEventId
 
+The meaning of logEventId's could be:
+```
 ID		data1	data2	data3		meaning
 ------------------------------------------------
 0x00	version	VERSION	bootNo		boot
@@ -62,32 +61,32 @@ ID		data1	data2	data3		meaning
 0x02	max							accessory buffer high water mark
 ...
 0xFF								EMPTY
+```
+
+Where only logEventId = 0 and 0xFF are predefined values, all others are user defined.
+LittleLog accepts any logEventId other than 0 and 0xFF as input. It has no idea
+of the meaning of a logEventId. Keeping track of that is the responsibility of 
+the caller.
 
 ## Architecture
 
-Primary functions:
-- initLog(tableId, maxNumRecords, VERSION, version, *getTimeFn, *writeRecordFn);
+LittleLog only has 3 public functions:
+
+- initLog(tableId, maxNumRecords, VERSION, version, *getTimeFn, *writeRecordFn, *readRecordFn);
+	- stores tableId, maxNumRecords, *getTimeFn, *writeRecordFn and *readRecordFn to static vars
 	- findsLastBootEvent and increases bootNo by 1
-	- sets static logRecordId
-	- logs bootEvent
+	- sets static currentLogRecordId
+	- logs bootEvent at currentLogRecordId
+	- increases currentLogRecordId by 1
+
 - logEvent(eventId, data1, data2, data3);
 	- writes log record to db
-	- updates logRecordId
+	- increases currentLogRecordId by 1
+
 - clearLog();
 	- copies latest bootEvent to position 0
-		- i.e. sets logRecordId to 1
+	- sets currentLogRecordId to 1
 	- sets all other logEventIds to 0xFF
-
-How to keep track of logRecordId between power cycles?
-- logRecordId may be 1 byte in the settings (i.e external to LittleLog)
-	- is that a good idea? should it be integrated functionality?
-	- can the lib be strictly separated then?
-
-(Caller:)
-- it should be invisible to the general user
-	- How to hide log?
-	- How to make it visible? Key combo? At certain location?
-	- Is this related to the logRecordId (?)
 
 =====
 
