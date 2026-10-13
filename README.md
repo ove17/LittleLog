@@ -23,8 +23,7 @@ A LittleLog record has the following format:
 - timestamp		uint32_t	miliseconds
 - logEventId	uint8_t
 - data1			uint8_t
-- data2			uint8_t
-- data3			uint16_t
+- data2			uint16_t
 
 Where logEventId = 0 and 0xFF are predefined values, see **logEventId** below.
 
@@ -40,27 +39,26 @@ These are examples, none of this is implemented in LittleLog.
 ### Possible UI display format
 
 ```
->tttttt cc dddeeffff
+>ttttttt cc ddd ffff
 ```
 
 where:
-- t = timestamp in ms, dus max. 999,999 ms ~ 16 min (and then rolls over)
+- t = timestamp in ms, dus max. 9,999,999 ms ~ 160 min (and then rolls over)
 - cc = logEventId (HEX)
 - ddd = data byte 1 (as dec)
-- ee = data byte 2 (as hex)
-- ffff = data word 3 (as hex)
+- eeee = data byte 2 (as hex)
 
 ## logEventId
 
 The meaning of logEventId's could be:
 ```
-ID	data1	data2	data3	meaning
+ID	data1	data2	meaning
 ------------------------------------------------
-0x00	version	VERSION	bootNo	boot
-0x01	any	any	any	misc/temp use
-0x02	max			accessory buffer high water mark
+0x00	version	VERSION	boot
+0x01	any	any	misc/temp use
+0x02	max		accessory buffer high water mark
 ...
-0xFF				EMPTY
+0xFF			EMPTY
 ```
 
 Where only logEventId = 0 and 0xFF are predefined values, all others are user defined.
@@ -72,31 +70,18 @@ the caller.
 
 LittleLog only has 3 public functions:
 
-- initLog(tableId, maxNumRecords, VERSION, version, *getTimeFn, *writeRecordFn, *readRecordFn);
+- initLog(tableId, maxNumRecords, VERSION, version, *getTimeFn, *writeRecordFn, *readRecordIdFn);
 	- stores tableId, maxNumRecords, *getTimeFn, *writeRecordFn and *readRecordFn to static vars
-	- findsLastBootEvent and increases bootNo by 1
-	- sets static currentLogRecordId
+	- sets currentLogRecordId to the first empty record (logEventId == EMPTY)
+	- clears next record
 	- logs bootEvent at currentLogRecordId
 	- increases currentLogRecordId by 1
 
 - logEvent(eventId, data1, data2, data3);
+	- set the next recordId to 0xFF (EMPTY)
 	- writes log record to db
 	- increases currentLogRecordId by 1
 
 - clearLog();
-	- copies latest bootEvent to position 0
 	- sets currentLogRecordId to 1
-	- sets all other logEventIds to 0xFF
-
-=====
-
-#       heading
-##      subheading
--       bullet
-1.      numbered list
-- [ ]   checkbox
->       quote
-**x**   bold
-*x*     italic
-`x`     inline code
-```      code block
+	- sets all other logEventIds to 0xFF (EMPTY)
