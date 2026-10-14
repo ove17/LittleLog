@@ -70,18 +70,20 @@ the caller.
 
 LittleLog only has 3 public functions:
 
-- initLog(tableId, maxNumRecords, VERSION, version, *getTimeFn, *writeRecordFn, *readRecordIdFn);
-	- stores tableId, maxNumRecords, *getTimeFn, *writeRecordFn and *readRecordFn to static vars
+- initLog(logSize, *getTimeFn, *writeRecordFn, *readRecordIdFn);
+	- stores logSize, *getTimeFn, *writeRecordFn and *readRecordFn to static vars
 	- sets currentLogRecordId to the first empty record (logEventId == EMPTY)
 	- clears next record
 	- logs bootEvent at currentLogRecordId
 	- increases currentLogRecordId by 1
 
-- logEvent(eventId, data1, data2, data3);
+- logEvent(eventId, data1, data2);
 	- set the next recordId to 0xFF (EMPTY)
 	- writes log record to db
 	- increases currentLogRecordId by 1
 
+- logBootEvent(versionMajor, versionMinor);
+	
 - clearLog();
 	- sets currentLogRecordId to 1
 	- sets all other logEventIds to 0xFF (EMPTY)

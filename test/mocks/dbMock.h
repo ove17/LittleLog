@@ -7,8 +7,6 @@
 #include <stdbool.h>
 
 
-#define LOG_SIZE 10
-
 typedef struct {
     uint32_t timeStamp;
     uint8_t eventId;
@@ -18,11 +16,10 @@ typedef struct {
 
 
 
-bool DB_setRecord(const uint8_t tableId,
-                  const uint8_t recordId,
+bool DB_setRecord(const uint8_t recordId,
                   const uint16_t* data);
 
-
+uint8_t DB_getValue(const uint8_t recordId);
 
 
 // functions for setup / inspection:
@@ -31,5 +28,7 @@ bool DB_setRecord(const uint8_t tableId,
 void DB_MOCK_init(void);
 
 mockRecord DB_MOCK_getRecord(uint16_t recordId);
+
+void DB_MOCK_dump(const uint8_t numRecords);
 
 #endif
