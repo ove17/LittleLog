@@ -1,6 +1,8 @@
 /* LittleLog.h
  *
  *
+ * not thread-safe
+ *
  * Opening (and closing) the database is the responsibility of the caller
  *
  * db record schema MUST be:
@@ -40,8 +42,7 @@ typedef uint32_t (*LL_getTimeStampFn)(void);
  * The caller must make sure the database is open and must make sure this
  *  function writes to the correct table with the correct schema
  * The *data array must contain (at least) 5 items.
- * This function returns false if the provided data does not conform to the
- *  dbase schema.
+ * Returns true if the record was successfully written; otherwise returns false.
  */
 typedef bool (*LL_writeLogRecordFn)(const uint8_t recordId,
                                     const uint16_t *data);
@@ -49,12 +50,13 @@ typedef bool (*LL_writeLogRecordFn)(const uint8_t recordId,
 /*
  * Callback used to read the logEventId from a log record in the dbase.
  * The caller must make sure the database is open and must make sure this
- *  function writes to the correct column in the correct table with the correct
+ *  function reads the correct column in the correct table with the correct
  *  schema.
  */
 typedef uint8_t (*LL_readLogEventIdFn)(const uint8_t recordId);
 
 /*
+ * Must be called before using any other function.
  * The log must have more than 1 record to function.
  * The callback functions are described above.
  */

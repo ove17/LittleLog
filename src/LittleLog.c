@@ -16,7 +16,7 @@ static LL_readLogEventIdFn ReadLogEventIdFn = NULL;
 /* if no empty record was found, it returns 0 to allow the log system to
  * recover from an invalid state and operate normally.
  */
-uint8_t findFirstEmptyRecord(void) {
+static uint8_t findFirstEmptyRecord(void) {
     for (uint8_t i = 0; i < LogSize; i++) {
         if (ReadLogEventIdFn(i) == LL_EVENT_EMPTY) {
             return i;
@@ -51,7 +51,7 @@ void LL_closeLog(void) {
 }
 
 
-void writeLogRecord(const uint8_t eventId,
+static void writeLogRecord(const uint8_t eventId,
                     const uint8_t value8b,
                     const uint16_t value16b) {
     assert(GetTimeStampFn != NULL);
@@ -69,12 +69,12 @@ void writeLogRecord(const uint8_t eventId,
 }
 
 
-void clearRecord(void) {
+static void clearRecord(void) {
     writeLogRecord(LL_EVENT_EMPTY, 0, 0);
 }
 
 
-void nextRecord(void) {
+static void nextRecord(void) {
     RecordId++;
     if (RecordId >= LogSize) {
         RecordId = 0;
@@ -82,7 +82,7 @@ void nextRecord(void) {
 }
 
 
-void logEvent(const uint8_t eventId,
+static void logEvent(const uint8_t eventId,
               const uint8_t value8b,
               const uint16_t value16b) {
     writeLogRecord(eventId, value8b, value16b);

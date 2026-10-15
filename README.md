@@ -21,12 +21,14 @@ The caller may also:
 ## Data format
 
 A LittleLog record has the following format:
-- timestamp		uint32_t	miliseconds
+- timestamp		uint32_t	milliseconds
 - logEventId	uint8_t
 - data1			uint8_t
 - data2			uint16_t
 
 Where logEventId = 0 and 0xFF are predefined values, see **logEventId** below.
+
+Note that the callback function for writing a record to the database has 5 elements, because it uses uint16_t for storage, so the timestamp is stored in two uint16_t's, MSW first.
 
 ## Potential use
 
@@ -45,7 +47,7 @@ Again, this is an example, and not implemented in LittleLog.
 ```
 
 where:
-- t = timestamp in ms, so max. visible is 9,999,999 ms ~ 160 min
+- t = timestamp in ms, so in this example max. visible is 9,999,999 ms ~ 160 min
 - cc = logEventId (HEX)
 - ddd = data byte 1 (as dec)
 - eeee = data byte 2 (as hex)
@@ -66,25 +68,25 @@ ID	data1	data2	meaning
 ```
 
 Where only logEventId = 0 and 0xFF are reserved values, all others are user defined.
-LittleLog accepts any logEventId other than 0 and 0xFF as input. It has no idea of the meaning of a logEventId. Keeping track of that is the responsibility of the caller.
+LL_logEvent accepts any logEventId other than 0 and 0xFF as input. It has no idea of the meaning of a logEventId. Keeping track of that is the responsibility of the caller.
 
 ## Architecture
 
 LittleLog only has few public functions:
 
-- initLog
+- LL_nitLog
 must be called before logging any events.
 
-- closeLog
+- LL_closeLog
 resets all static variables, mostly (only) useful for testing.
 
-- logEvent
+- LL_logEvent
 writes a user-defined logEventId and two user defined values to the log, along with a timestamp.
 
-- logBootEvent
+- LL_logBootEvent
 writes the bootLogEventId along with minor and major fw version to the log, along with a timestamp.
 
-- clearLog
+- LL_clearLog
 clears the entire log and restarts at record 0
 
 Note that after every write to the log, the next record is cleared. This is to make sure that it is always clear what the last written record is.
